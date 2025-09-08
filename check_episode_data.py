@@ -5,6 +5,7 @@ Check episode data structure to debug frame count issue
 
 import json
 import os
+from dotenv import load_dotenv
 
 def check_episode_data():
     """Check the structure and frame count of episode data."""
@@ -13,7 +14,7 @@ def check_episode_data():
     episodes_to_check = [0, 1]
     
     for episode_idx in episodes_to_check:
-        episode_path = f'/home/vaclav/IsaacLab_unitree/IsaacLab/Pretrained_data/data/episode_{episode_idx:04d}/data.json'
+        episode_path = f'{os.environ["DATASET_ROOT_PATH"]}/episode_{episode_idx:04d}/data.json'
         
         print(f"\n{'='*60}")
         print(f"📁 CHECKING EPISODE {episode_idx}")
@@ -77,4 +78,5 @@ def check_episode_data():
             print(f"❌ Error loading episode {episode_idx}: {e}")
 
 if __name__ == "__main__":
+    load_dotenv()
     check_episode_data()
