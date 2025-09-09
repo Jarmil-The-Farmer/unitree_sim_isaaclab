@@ -16,6 +16,7 @@ import signal
 import torch
 import gymnasium as gym
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Isaac Lab AppLauncher
 from isaaclab.app import AppLauncher
@@ -26,7 +27,7 @@ from dds.dds_create import create_dds_objects,create_dds_objects_replay
 parser = argparse.ArgumentParser(description="Unitree Simulation")
 parser.add_argument("--task", type=str, default="Isaac-PickPlace-G129-Head-Waist-Fix", help="task name")
 parser.add_argument("--action_source", type=str, default="dds", 
-                   choices=["dds", "file", "trajectory", "policy", "replay","dds_wholebody"], 
+                   choices=["dds", "file", "trajectory", "policy", "replay","dds_wholebody", "teleoperation_replay"], 
                    help="Action source")
 
 
@@ -52,6 +53,8 @@ parser.add_argument("--profile_interval", type=int, default=500, help="performan
 
 parser.add_argument("--model_path", type=str, default="assets/model/policy.onnx", help="model path")
 parser.add_argument("--enable_wholebody_dds", action="store_true", default=False, help="enable wh dds")
+parser.add_argument("--episode_index", type=int, default=0, help="teleoperation replay episode index")
+parser.add_argument("--playback_speed", type=float, default=1.0, help="teleoperation replay playback speed")
 
 # add AppLauncher parameters
 AppLauncher.add_app_launcher_args(parser)
@@ -421,6 +424,7 @@ def main():
 
 if __name__ == "__main__":
     try:
+        load_dotenv()
         main()
     finally:
         print("Performing final cleanup...")
