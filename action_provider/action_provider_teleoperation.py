@@ -1,28 +1,16 @@
-#!/usr/bin/env python3
-"""
-Teleoperation Data Replay Script for Isaac Lab
-Converts teleoperation training data to G1 robot with inspire hands format and replays in simulation
-"""
-
-import os
 import json
-import numpy as np
+import os
+from typing import Dict, List, Optional
+
 import torch
-import sys
-import math
-from typing import Dict, List, Optional, Tuple
 
-# Add paths for Isaac Lab infrastructure
-sys.path.append("/home/vaclav/IsaacLab_unitree/IsaacLab/unitree_sim_isaaclab/action_provider")
-sys.path.append("/home/vaclav/IsaacLab_unitree/IsaacLab/unitree_sim_isaaclab")
-
-from action_base import ActionProvider
+from action_provider.action_base import ActionProvider
 
 
 class TeleoperationReplayActionProvider(ActionProvider):
     """Action provider that replays teleoperation training data with proper joint mapping."""
     
-    def __init__(self, episode_path: str, scale_factor: float = 1.0, playback_speed: float = 1.0):
+    def __init__(self, data_path: str, episode_index: int, scale_factor: float = 1.0, playback_speed: float = 1.0):
         """
         Initialize teleoperation replay.
         
@@ -33,7 +21,7 @@ class TeleoperationReplayActionProvider(ActionProvider):
         """
         super().__init__("TeleoperationReplayActionProvider")
         
-        self.episode_path = episode_path
+        self.episode_path = f"{data_path}/episode_{episode_index:04d}/data.json"
         self.scale_factor = scale_factor
         self.playback_speed = playback_speed
         self.current_frame = 0
@@ -43,7 +31,7 @@ class TeleoperationReplayActionProvider(ActionProvider):
         # Load episode data
         self.episode_data = self._load_episode_data()
         if not self.episode_data:
-            raise ValueError(f"Failed to load episode data from {episode_path}")
+            raise ValueError(f"Failed to load episode data from {self.episode_path}")
         
         self.total_frames = len(self.episode_data)
         self.frame_duration = 1.0 / 30.0  # 30 FPS original data
@@ -53,7 +41,7 @@ class TeleoperationReplayActionProvider(ActionProvider):
         self._setup_joint_mappings()
         
         print(f"🎬 Teleoperation Replay Provider Initialized")
-        print(f"   📁 Episode: {os.path.basename(episode_path)}")
+        print(f"   📁 Episode: {os.path.basename(self.episode_path)}")
         print(f"   📊 Total frames: {self.total_frames}")
         print(f"   ⏱️  Duration: {self.total_frames * self.frame_duration:.1f}s")
         print(f"   🎚️  Scale factor: {scale_factor}")
@@ -328,8 +316,11 @@ class TeleoperationReplayActionProvider(ActionProvider):
                     self.next_frame_time += self.frame_duration / self.playback_speed
                 else:
                     # We've reached the end, stop here
-                    if int(self.time * 500) % 250 == 0:  # Only show end message occasionally
-                        print(f"🏁 Episode complete - holding at final frame {self.current_frame}/{self.total_frames}")
+                    # if int(self.time * 500) % 250 == 0:  # Only show end message occasionally
+                    #     print(f"🏁 Episode complete - holding at final frame {self.current_frame}/{self.total_frames}")
+                    self.reset()
+                    env.sim.reset()
+                    env.reset()
             
             # Check if replay is completed BEFORE trying to get actions
             if self.current_frame >= self.total_frames:
@@ -387,44 +378,3 @@ class TeleoperationReplayActionProvider(ActionProvider):
         self.time = 0.0
         self.next_frame_time = 0.0
         print("🔄 Teleoperation replay reset")
-
-
-def create_teleoperation_replay_provider(episode_index: int = 0, **kwargs):
-    """Factory function to create teleoperation replay provider."""
-    
-    episode_path = f"/home/vaclav/IsaacLab_unitree/IsaacLab/Pretrained_data/data/episode_{episode_index:04d}/data.json"
-    
-    if not os.path.exists(episode_path):
-        available_episodes = []
-        data_dir = "/home/vaclav/IsaacLab_unitree/IsaacLab/Pretrained_data/data"
-        if os.path.exists(data_dir):
-            available_episodes = [d for d in os.listdir(data_dir) if d.startswith('episode_')]
-        raise ValueError(f"Episode {episode_index} not found at {episode_path}. Available episodes: {len(available_episodes)}")
-    
-    return TeleoperationReplayActionProvider(episode_path, **kwargs)
-
-
-def main():
-    """Test the teleoperation replay provider."""
-    print("🎬 Teleoperation Replay Action Provider Test")
-    print("=" * 60)
-    
-    # List available episodes
-    data_dir = "/home/vaclav/IsaacLab_unitree/IsaacLab/Pretrained_data/data"
-    if os.path.exists(data_dir):
-        episodes = sorted([d for d in os.listdir(data_dir) if d.startswith('episode_')])
-        print(f"📁 Found {len(episodes)} episodes: {episodes[:5]}{'...' if len(episodes) > 5 else ''}")
-    
-    # Test with episode 0
-    try:
-        provider = create_teleoperation_replay_provider(episode_index=0, scale_factor=1.0, playback_speed=1.0)
-        print(f"✅ Successfully created replay provider")
-        print(f"   📊 {provider.total_frames} frames loaded")
-        print(f"   ⏱️  Duration: {provider.total_frames * provider.frame_duration:.1f}s")
-        
-    except Exception as e:
-        print(f"❌ Error creating provider: {e}")
-
-
-if __name__ == "__main__":
-    main()
