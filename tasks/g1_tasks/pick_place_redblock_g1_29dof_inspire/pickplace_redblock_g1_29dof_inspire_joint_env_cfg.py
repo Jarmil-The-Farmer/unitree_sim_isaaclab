@@ -107,8 +107,8 @@ class EventCfg:
         params={
             # position range parameter
             "pose_range": {
-                "x": [-0.05, 0.05],  # x axis position range: -0.05 to 0.0 meter
-                "y": [-0.05, 0.05],   # y axis position range: 0.0 to 0.05 meter
+                "x": [-0.1, 0.1],  # x axis position range: -0.05 to 0.0 meter
+                "y": [-0.1, 0.1],   # y axis position range: 0.0 to 0.05 meter
             },
             # speed range parameter (empty dictionary means using default value)
             "velocity_range": {},
@@ -165,7 +165,7 @@ class PickPlaceG129InspireHandBaseFixEnvCfg(ManagerBasedRLEnvCfg):
             func=lambda env: base_mdp.reset_root_state_uniform(
                 env,
                 torch.arange(env.num_envs, device=env.device),
-                pose_range={"x": [-0.05, 0.05], "y": [-0.05, 0.05]},
+                pose_range={"x": [-0.1, 0.1], "y": [-0.1, 0.1]},
                 velocity_range={},
                 asset_cfg=SceneEntityCfg("object"),
             )

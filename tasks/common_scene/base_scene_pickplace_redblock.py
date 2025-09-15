@@ -19,16 +19,16 @@ class TableRedBlockSceneCfg(InteractiveSceneCfg): # inherit from the interactive
     defines a complete scene containing robot, object, table, etc.
     """
       # 1. room wall configuration - simplified configuration to avoid rigid body property conflicts
-    room_walls = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/Room",
-        init_state=AssetBaseCfg.InitialStateCfg(
-            pos=[0.0, 0.0, 0],  # room center point
-            rot=[1.0, 0.0, 0.0, 0.0]
-        ),
-        spawn=UsdFileCfg(
-            usd_path=f"{project_root}/assets/objects/small_warehouse_digital_twin/small_warehouse_digital_twin.usd",
-        ),
-    )
+    # room_walls = AssetBaseCfg(
+    #     prim_path="/World/envs/env_.*/Room",
+    #     init_state=AssetBaseCfg.InitialStateCfg(
+    #         pos=[0.0, 0.0, 0],  # room center point
+    #         rot=[1.0, 0.0, 0.0, 0.0]
+    #     ),
+    #     spawn=UsdFileCfg(
+    #         usd_path=f"{project_root}/assets/objects/small_warehouse_digital_twin/small_warehouse_digital_twin.usd",
+    #     ),
+    # )
 
 
     # 1. table configuration
@@ -47,29 +47,34 @@ class TableRedBlockSceneCfg(InteractiveSceneCfg): # inherit from the interactive
         prim_path="/World/envs/env_.*/Object",
         init_state=RigidObjectCfg.InitialStateCfg(
             pos=[-4.15, -4.05, 0.84],
-            rot=[1, 0, 0, 0]
+            rot=[1, 0, 0, 0],
         ),
         spawn=sim_utils.CuboidCfg(
             size=(0.06, 0.06, 0.06),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(
                 disable_gravity=False,
-                retain_accelerations=False
+                retain_accelerations=False,
+                linear_damping=0.03,           # ↑ o trochu víc tlumení → míň ujíždí z úchopu
+                angular_damping=0.03,          # ↑ snáz “sedne” mezi prsty
+                solver_position_iteration_count=24,
+                solver_velocity_iteration_count=4,
+                max_depenetration_velocity=1.0,
             ),
-            mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+            mass_props=sim_utils.MassPropertiesCfg(mass=0.40),
             collision_props=sim_utils.CollisionPropertiesCfg(
                 collision_enabled=True,
-                contact_offset=0.01,
-                rest_offset=0.0
+                contact_offset=0.0015,
+                rest_offset=0.0,
             ),
             visual_material=sim_utils.PreviewSurfaceCfg(
-                diffuse_color=(1.0, 0.0, 0.0), metallic=0
+                diffuse_color=(1.0, 0.0, 0.0), metallic=0,
             ),
             physics_material=sim_utils.RigidBodyMaterialCfg(
-                friction_combine_mode="max",
+                friction_combine_mode="min",    # s nízkotřecím stolem stále klouže
                 restitution_combine_mode="min",
-                static_friction=10,
-                dynamic_friction=1.5,
-                restitution=0.01,
+                static_friction=2.8,            # ↑ pevnější grip
+                dynamic_friction=2.2,           # ↑ menší skluz v ruce
+                restitution=0.0,
             ),
         ),
     )
