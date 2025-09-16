@@ -27,7 +27,7 @@ from dds.dds_create import create_dds_objects,create_dds_objects_replay
 parser = argparse.ArgumentParser(description="Unitree Simulation")
 parser.add_argument("--task", type=str, default="Isaac-PickPlace-G129-Head-Waist-Fix", help="task name")
 parser.add_argument("--action_source", type=str, default="dds", 
-                   choices=["dds", "file", "trajectory", "policy", "replay","dds_wholebody", "teleoperation_replay"], 
+                   choices=["dds", "file", "trajectory", "policy", "replay","dds_wholebody", "teleoperation_replay", "diffusion"], 
                    help="Action source")
 
 
@@ -56,6 +56,7 @@ parser.add_argument("--reward_interval", type=int, default=10, help="step interv
 parser.add_argument("--enable_wholebody_dds", action="store_true", default=False, help="enable wh dds")
 parser.add_argument("--episode_index", type=int, default=0, help="teleoperation replay episode index")
 parser.add_argument("--playback_speed", type=float, default=1.0, help="teleoperation replay playback speed")
+parser.add_argument("--checkpoint_path", type=str, default="", help="diffusion model checkpoint path")
 
 parser.add_argument("--physics_dt", type=float, default=None, help="physics time step, e.g., 0.005")
 parser.add_argument("--render_interval", type=int, default=None, help="GUI render interval steps")
