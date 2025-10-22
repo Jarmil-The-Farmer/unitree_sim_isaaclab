@@ -46,8 +46,8 @@ class TableRedBlockSceneCfg(InteractiveSceneCfg): # inherit from the interactive
     object = RigidObjectCfg(
         prim_path="/World/envs/env_.*/Object",
         init_state=RigidObjectCfg.InitialStateCfg(
-            pos=[-4.15, -4.05, 0.84],
-            rot=[1, 0, 0, 0],
+            pos=[-4.25, -4.03, 0.84],
+            rot=[1, 0, 0, 0]
         ),
         spawn=sim_utils.CuboidCfg(
             size=(0.06, 0.06, 0.06),
